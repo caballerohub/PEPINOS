@@ -1,0 +1,66 @@
+
+#
+# Creer un disque bootable
+#
+bximage
+
+fdisk c.img
+> x
+> c 4
+> h 16
+> s 63
+> r
+> n, p, 1
+> a 1
+> w
+
+sudo -s
+
+# obtenir le numero de secteur de la partition
+fdisk -l -u c.img
+
+# associe la premiere partition (offset : numero de secteur * 512)
+# a /dev/loop0
+losetup -o 32256 /dev/loop0 c.img
+# note : pour detacher : losetup -d /dev/loop0
+
+# creer le fs
+mke2fs /dev/loop0
+
+# monter la partition
+mount -t ext2 /dev/loop0 /mnt/loop
+
+
+# 
+# Installation de grub sur hd0
+#
+
+mkdir /mnt/loop/grub
+
+cp /boot/grub/stage* /mnt/loop/grub
+
+cat > /mnt/loop/grub/menu.lst << EOF
+title=Pepin
+root (hd0,0)
+kernel /kernel
+boot
+EOF
+
+umount /mnt/loop
+
+grub --device-map=/dev/null << EOF
+device (hd0) c.img
+geometry (hd0) 4 16 63
+root (hd0,0)
+setup (hd0)
+quit
+EOF
+
+
+#
+# Pour compiler une application :
+#
+gcc -c foo.c
+ld -Ttext=40000000 --entry=main foo.o 
+
+
