@@ -29,4 +29,4 @@ Para compilar y ejecutar este proyecto se requieren las siguientes herramientas 
 Para iniciar la emulación del sistema operativo directamente con la imagen de disco y el kernel emulado, ejecuta el siguiente comando en la raíz del proyecto:
 
 ```bash
-make run
+qemu-system-i386 -hda c.img -kernel kern/kernel
